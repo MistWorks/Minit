@@ -90,8 +90,8 @@ lm_entry:
     mov ss, ax
     mov rsp, 0x200000
 
-    mov rax, 0x100000
-    call rax
+    ;mov rax, 0x100000
+    ;call rax
 
     cli
 .halt:
