@@ -1,36 +1,29 @@
-# === Инструменты ===
-ASM = nasm
-QEMU = qemu-system-x86_64
-DD = dd
-CAT = cat
+ASM      := nasm
+QEMU     := qemu-system-x86_64
+QEMU_FLAGS := -drive format=raw,file=$< -m 256M -serial stdio -no-reboot
 
-# === Флаги ===
-ASM_FLAGS = -f bin
-QEMU_FLAGS = -drive format=raw,file=Mist.img -m 256M -serial stdio -no-reboot
+BUILD_DIR := build
 
-# === Цели ===
 .PHONY: all run debug clean
 
-all: Mist.img
+all: $(BUILD_DIR)/System.img
 
-# Сборка загрузчика
-BootLoader.bin: BootLoader.asm
-	$(ASM) $(ASM_FLAGS) -o $@ $< -g
+$(BUILD_DIR)/Minit.bin: boot/Minit.asm boot/Stages/real.asm boot/Stages/protected.asm boot/Stages/long.asm
+	@mkdir -p $(BUILD_DIR)
+	$(ASM) -f bin boot/Minit.asm -o $@
 
-# Создание образа диска (загрузчик + ядро)
-Mist.img: BootLoader.bin
-	$(CAT) $< > $@
-	# Если есть Kernel.bin — добавляем его после загрузчика
-	@if [ -f Kernel.bin ]; then $(CAT) Kernel.bin >> $@; fi
+$(BUILD_DIR)/stub.bin: boot/Kernstub.asm
+	@mkdir -p $(BUILD_DIR)
+	$(ASM) -f bin $< -o $@
 
-# Запуск в QEMU
-run: Mist.img
-	$(QEMU) $(QEMU_FLAGS)
+$(BUILD_DIR)/System.img: $(BUILD_DIR)/Minit.bin $(BUILD_DIR)/stub.bin
+	cat $^ > $@
 
-# Запуск с GDB (порт 1234)
-debug: Mist.img
-	$(QEMU) $(QEMU_FLAGS) -s -S
+run: $(BUILD_DIR)/System.img
+	$(QEMU) -drive format=raw,file=$< -m 256M -serial stdio
 
-# Очистка
+debug: $(BUILD_DIR)/System.img
+	$(QEMU) -drive format=raw,file=$< -m 256M -serial stdio -no-reboot -s -S
+
 clean:
-	rm -f BootLoader.bin Mist.img
+	rm -rf $(BUILD_DIR)
