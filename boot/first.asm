@@ -1,8 +1,9 @@
 bits 16
 org 0x7C00
 
-real:
+start:
     cli
+    
     mov [drive], dl
     xor ax, ax
     mov es, ax
@@ -13,6 +14,11 @@ real:
     in al, 0x92
     or al, 2
     out 0x92, al
+
+    mov ah, 0x00
+    mov dl, [drive]
+    int 0x13
+    jc err
 
     mov si, dap
     mov ah, 0x42
@@ -27,6 +33,16 @@ real:
     mov cr0, eax
 
     jmp 0x08:protected
+
+err:
+    mov ax, 0xB800
+    mov es, ax
+    mov word [es:0], 0x0745
+    mov word [es:2], 0x0748
+    cli    
+.hang:
+    hlt
+    jmp .hang
 
 bits 32
 protected:
@@ -81,26 +97,21 @@ longm:
     mov ss, ax
     mov rsp, 0x200000
 
+    mov word [0xB8000], 0x076C
+    
     mov rax, 0x8000
     jmp rax
 
-    cli
-.halt:
+.hlt:
     hlt
-    jmp .halt
+    jmp .hlt
 
 drive: db 0
-
-err:
-    cli    
-.hang:
-    hlt
-    jmp .hang
 
 dap:
     db 0x10
     db 0
-    dw 1
+    dw 2
     dw 0x0000
     dw 0x0800
     dq 1
@@ -137,5 +148,12 @@ gdt_ptr:
     dw gdt_end - gdt_start - 1
     dd gdt_start
 
-times 510 - ($ - $$) db 0
+times 0x1BE - ($ - $$) db 0
+db 0x80
+db 0x00, 0x01, 0x01
+db 0x0C
+db 0xFF, 0xFF, 0xFF
+dd 1
+dd 0xFFFFFFFF
+times 0x1FE - ($ - $$) db 0
 dw 0xAA55
