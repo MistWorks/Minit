@@ -6,13 +6,13 @@ QEMU     := qemu-system-x86_64
 
 BUILD_DIR := build
 
-CFLAGS := --target=x86_64-elf -ffreestanding -nostdlib -O2 -mno-red-zone \
+CFLAGS := --target=x86_64-elf -ffreestanding -nostdlib -O2 -mno-red-zone -mno-sse -mno-sse2 \
           -fno-stack-protector -fno-pie -fno-builtin -Wall -Wextra \
           -Iboot/second
 
 .PHONY: all run clean
 
-all: $(BUILD_DIR)/System.img
+all: $(BUILD_DIR)/Minit.img
 
 SECOND_SRCS := $(wildcard boot/second/*.c)
 SECOND_OBJS := $(patsubst boot/second/%.c, $(BUILD_DIR)/second/%.o, $(SECOND_SRCS))
@@ -31,12 +31,12 @@ $(BUILD_DIR)/first.bin: boot/first.asm
 	@mkdir -p $(BUILD_DIR)
 	$(ASM) -f bin $< -o $@
 
-$(BUILD_DIR)/System.img: $(BUILD_DIR)/first.bin $(BUILD_DIR)/second.bin
+$(BUILD_DIR)/Minit.img: $(BUILD_DIR)/first.bin $(BUILD_DIR)/second.bin
 	dd if=/dev/zero of=$@ bs=512 count=128
 	dd if=$(BUILD_DIR)/first.bin of=$@ bs=512 conv=notrunc
 	dd if=$(BUILD_DIR)/second.bin of=$@ bs=512 seek=1 conv=notrunc
 
-run: $(BUILD_DIR)/System.img
+run: $(BUILD_DIR)/Minit.img
 	$(QEMU) -drive format=raw,file=$< -m 256M -no-reboot
 
 clean:
