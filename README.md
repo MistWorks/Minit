@@ -11,9 +11,9 @@
 
 ---
 
-**Minit** is a simple x86 bootloader made from scratch
+**Minit** is a simple x86 bootloader made from scratch, that can work on real hardware (checked on Acer Aspire E5-532)
 
-This training project made for learning how the PC works. Every bug fix and improvment are welcome, so _don't be shy to contribute_.
+This training project made for learning how the PC works. Every bug fix and improvement are welcome, so _don't be shy to contribute_.
 It uses MIT license so you can do anything with this code!
 </div>
 
@@ -21,16 +21,22 @@ It uses MIT license so you can do anything with this code!
 <br>
 
 ## 🤔 What can it do?
-- Boot from BIOS with custom assembly bootloader
-- Enable A20 line via Fast A20 Gate for accessing memory above 1MB
+- Boot from BIOS with assembly 1st stage
+- Enable A20 line via Fast A20 Gate
 - Set up GDT with 32-bit and 64-bit code/data segments
-- Read disk sectors through BIOS int 0x13 Extended Read (LBA mode)
-- Transition to Protected Mode (32-bit) by setting PE bit in CR0
-- Configure paging with 2MB pages covering first 1GB of physical memory
-- Enable Long Mode (64-bit) via PAE and MSR EFER activation
-- Load kernel to 1MB physical address with hardcoded copy
+- Read disk through BIOS int 0x13
+- Transition to Protected Mode and Long Mode
+- Configure paging with 2MB pages (only first 1GB of physical memory)
+- Parse ELF64 headers and dynamically load kernel to memory
 - Jump to kernel and hand off control
 - etc...
+
+## In future...
+- Real-mode thunk to dynamic search kernel on the disk
+- Own VERY simple ext-like FS
+- Pass boot info to the kernel
+
+### All new features and changes will be posted first to my [Telegram channel](https://t.me/DevyzLog)
 
 ## 🏁 Get started
 
@@ -42,14 +48,14 @@ It uses MIT license so you can do anything with this code!
 
 ---
 
-You can start with 2 ways:
+I **highly** recommend using it with [Mist](https://github.com/MistWorks/Mist), but also you can configure your kernel to it (In future there will be config and simplified compatibility with custom kernels). You can start with 2 ways:
 
 1. Compile by yourself:
 <details>
 
 <br>
 
-  - Clone Mist repo:
+  - Clone Minit repo:
 
   ```
   git clone https://github.com/MistWorks/Minit
@@ -70,14 +76,14 @@ You can start with 2 ways:
 
 <br>
 
-2. Use already compiled Mist.img from releases:
+2. Use already compiled Minit.img from releases (it won't start normally without OS):
 <details>
 
 <br>
 
-  - Copy Mist.img:
+  - Copy Minit.img:
   ```
-  wget https://github.com/MistWorks/Minit/releases/download/v0.1/Minit.img
+  wget https://github.com/MistWorks/Minit/releases/download/v0.3/Minit.img
   ```
   - Run with QEMU:
   ```
@@ -87,7 +93,7 @@ You can start with 2 ways:
 </details>
 
 ## 😰 Issues
-***Minit - young project made by 16 y.o. student***
+***Minit - young hobby project***
 
 It may contain bugs and errors
 
