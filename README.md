@@ -24,9 +24,10 @@ It uses MIT license so you can do anything with this code!
 - Boot from BIOS with assembly 1st stage
 - Enable A20 line via Fast A20 Gate
 - Set up GDT with 32-bit and 64-bit code/data segments
-- Read disk through BIOS int 0x13
-- Transition to Protected Mode and Long Mode
-- Configure paging with 2MB pages (only first 1GB of physical memory)
+- Config header
+- Transition to protected mode (And long mode, if specified in the config)
+- Real-mode thunk to read kernel
+- Configure paging with 2MB pages in Long Mode (only first 1GB of physical memory)
 - Parse ELF64 headers and dynamically load kernel to memory
 - Jump to kernel and hand off control
 - etc...
@@ -34,7 +35,6 @@ It uses MIT license so you can do anything with this code!
 It uses [Mistic](https://github.com/MistWorks/Mistic) - own freestanding C standard library
 
 ## In future...
-- Real-mode thunk to dynamic search kernel on the disk
 - Own VERY simple ext-like FS
 - Pass boot info to the kernel
 

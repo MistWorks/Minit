@@ -9,8 +9,6 @@ SECTIONS {
         *(.text .text.*)
     }
 
-    /* :text => тот же PT_LOAD, что .text. Один loadable сегмент,
-       objcopy -O binary даёт плотный bin, bin[X] == elf[VMA 0x8000+X]. */
     .rodata : { *(.rodata) *(.rodata.*) } :text
     .data   : { *(.data)   *(.data.*)   } :text
 
